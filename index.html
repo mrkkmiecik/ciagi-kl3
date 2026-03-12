@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crash Test: Ciągi Arytmetyczne 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap');
+
+        body {
+            background-color: #0a0a0c;
+            color: #e0e0e0;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+
+        .crash-card {
+            background: linear-gradient(145deg, #1a1a1e, #121215);
+            border-left: 4px solid #facc15;
+            transition: transform 0.2s ease;
+            position: relative;
+        }
+
+        .crash-card:hover {
+            transform: translateX(5px);
+        }
+
+        .status-badge {
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+        }
+
+        sub {
+            font-size: 0.75em;
+            color: #facc15;
+        }
+
+        .math-expr {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="mb-12 text-center relative">
+            <div class="absolute -top-4 left-1/2 -translate-x-1/2 opacity-10 text-9xl font-bold select-none">CRASH</div>
+            <h1 class="orbitron text-4xl md:text-6xl font-extrabold text-yellow-400 mb-2 relative tracking-tighter">CRASH TEST: CIĄGI</h1>
+            <p class="text-xl text-gray-400">Poziom: Klasa 3 Liceum | Moduł: Arytmetyczne II</p>
+            <div class="mt-6 flex justify-center gap-4">
+                <button onclick="initTest()" class="bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-2 font-bold rounded shadow-lg transition uppercase tracking-widest text-sm">
+                    GENERUJ NOWY TEST (RE-SYNC)
+                </button>
+            </div>
+        </header>
+
+        <div id="test-container" class="space-y-8">
+            <!-- Zadania zostaną wygenerowane tutaj przez JS -->
+        </div>
+
+        <footer class="mt-16 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+            <p>&copy; 2024 Math Crash Lab. System gotowy do pracy.</p>
+        </footer>
+    </div>
+
+    <script>
+        const tasksData = [
+            // Typ 1: Dowodzenie, że ciąg jest arytmetyczny
+            {
+                type: "Dowód: Definicja",
+                generate: () => {
+                    const a = Math.floor(Math.random() * 10) + 2;
+                    const b = Math.floor(Math.random() * 20) - 10;
+                    return {
+                        question: `Wykaż, że ciąg określony wzorem ogólnym <span class="math-expr">a<sub>n</sub> = ${a}n ${b >= 0 ? '+' : ''} ${b}</span> jest ciągiem arytmetycznym.`,
+                        hint: `Oblicz różnicę <span class="math-expr">r = a<sub>n+1</sub> - a<sub>n</sub></span> i sprawdź, czy wynik jest stały (liczbą rzeczywistą niezależną od n).`,
+                        answer: `Obliczamy <span class="math-expr">a<sub>n+1</sub> = ${a}(n+1) ${b >= 0 ? '+' : ''} ${b} = ${a}n + ${a} ${b >= 0 ? '+' : ''} ${b}</span>. <br>Różnica <span class="math-expr">r = a<sub>n+1</sub> - a<sub>n</sub> = (${a}n + ${a} ${b >= 0 ? '+' : ''} ${b}) - (${a}n ${b >= 0 ? '+' : ''} ${b}) = ${a}</span>. <br>Ponieważ r jest stałe, ciąg jest arytmetyczny.`
+                    };
+                }
+            },
+            {
+                type: "Dowód: Definicja",
+                generate: () => {
+                    const a = (Math.random() * 5 + 1).toFixed(1);
+                    return {
+                        question: `Dany jest ciąg <span class="math-expr">a<sub>n</sub> = ${a}n - 4</span>. Udowodnij z definicji, że jest to ciąg arytmetyczny.`,
+                        hint: `Zbadaj wartość wyrażenia <span class="math-expr">a<sub>n+1</sub> - a<sub>n</sub></span>.`,
+                        answer: `<span class="math-expr">a<sub>n+1</sub> - a<sub>n</sub> = [${a}(n+1) - 4] - [${a}n - 4] = ${a}n + ${a} - 4 - ${a}n + 4 = ${a}</span>. Wynik jest stały, zatem ciąg jest arytmetyczny.`
+                    };
+                }
+            },
+            // Typ 2: Wykres i prosta
+            {
+                type: "Dowód: Wykres i Prosta",
+                generate: () => {
+                    const m = Math.floor(Math.random() * 6) + 1;
+                    const k = Math.floor(Math.random() * 10) + 1;
+                    return {
+                        question: `Udowodnij, że wyrazy ciągu <span class="math-expr">a<sub>n</sub> = ${m}n + ${k}</span> należą do prostej o równaniu <span class="math-expr">y = ${m}x + ${k}</span>. Wykaż związek między współczynnikiem kierunkowym prostej a różnicą ciągu.`,
+                        hint: `Zauważ, że dla dowolnego <span class="math-expr">n ∈ N<sub>+</sub></span>, wartość <span class="math-expr">a<sub>n</sub></span> odpowiada wartości funkcji prostej dla <span class="math-expr">x = n</span>.`,
+                        answer: `Dla dowolnego <span class="math-expr">n ∈ N<sub>+</sub></span>, punkt <span class="math-expr">(n, a<sub>n</sub>)</span> spełnia równanie prostej, ponieważ <span class="math-expr">a<sub>n</sub> = ${m}n + ${k}</span>. Różnica ciągu <span class="math-expr">r = a<sub>n+1</sub> - a<sub>n</sub> = ${m}</span>, co jest równe współczynnikowi kierunkowemu prostej.`
+                    };
+                }
+            },
+            {
+                type: "Dowód: Wykres i Prosta",
+                generate: () => {
+                    const r = Math.floor(Math.random() * 8) - 4;
+                    const a1 = 2;
+                    const b = a1 - r;
+                    return {
+                        question: `Wykaż, że jeśli ciąg jest arytmetyczny o różnicy <span class="math-expr">r = ${r}</span> i pierwszym wyrazie <span class="math-expr">a<sub>1</sub> = ${a1}</span>, to jego wykres zawiera się w prostej o równaniu <span class="math-expr">y = ${r}x + ${b}</span>.`,
+                        hint: `Wyznacz wzór ogólny <span class="math-expr">a<sub>n</sub> = a<sub>1</sub> + (n-1)r</span> i porównaj z równaniem prostej.`,
+                        answer: `<span class="math-expr">a<sub>n</sub> = ${a1} + (n-1) \cdot (${r}) = ${a1} + ${r}n - ${r} = ${r}n + ${b}</span>. Dla argumentów naturalnych <span class="math-expr">x=n</span> wartości pokrywają się z równaniem prostej.`
+                    };
+                }
+            },
+            // Typ 3: Własności i zadania problemowe
+            {
+                type: "Własności: Trzy Wyrazy",
+                generate: () => {
+                    return {
+                        question: `Dla jakiej wartości <span class="math-expr">x</span> liczby: <span class="math-expr">x+1</span>, <span class="math-expr">2x-1</span>, <span class="math-expr">4x-7</span> w podanej kolejności tworzą ciąg arytmetyczny?`,
+                        hint: `Skorzystaj z własności: środkowy wyraz jest średnią arytmetyczną sąsiednich: <span class="math-expr">a<sub>n</sub> = (a<sub>n-1</sub> + a<sub>n+1</sub>) / 2</span>.`,
+                        answer: `<span class="math-expr">2(2x - 1) = (x + 1) + (4x - 7)</span> <br> <span class="math-expr">4x - 2 = 5x - 6</span> <br> <span class="math-expr">x = 4</span>.`
+                    };
+                }
+            },
+            {
+                type: "Własności: Suma",
+                generate: () => {
+                    const s1_val = 30;
+                    const s2_val = 66;
+                    return {
+                        question: `W ciągu arytmetycznym suma pierwszych trzech wyrazów wynosi <span class="math-expr">${s1_val}</span>, a suma trzech kolejnych (czwartego, piątego i szóstego) wynosi <span class="math-expr">${s2_val}</span>. Oblicz różnicę tego ciągu.`,
+                        hint: `Zauważ, że: <br><span class="math-expr">a<sub>4</sub> = a<sub>1</sub> + 3r</span><br><span class="math-expr">a<sub>5</sub> = a<sub>2</sub> + 3r</span><br><span class="math-expr">a<sub>6</sub> = a<sub>3</sub> + 3r</span><br>Suma (a<sub>4</sub>+a<sub>5</sub>+a<sub>6</sub>) - (a<sub>1</sub>+a<sub>2</sub>+a<sub>3</sub>) = 9r.`,
+                        answer: `<span class="math-expr">(a<sub>4</sub>+a<sub>5</sub>+a<sub>6</sub>) - (a<sub>1</sub>+a<sub>2</sub>+a<sub>3</sub>) = 9r</span><br><span class="math-expr">${s2_val} - ${s1_val} = 36</span><br><span class="math-expr">9r = 36 \implies r = 4</span>.`
+                    };
+                }
+            }
+        ];
+
+        function createCard(task, index) {
+            const id = `task-${index}`;
+            return `
+                <div class="crash-card p-6 relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="status-badge bg-yellow-500 text-black px-4 py-1 font-bold text-xs uppercase tracking-wider">
+                            ZADANIE ${index + 1}
+                        </span>
+                        <span class="text-gray-500 text-[10px] orbitron tracking-widest">${task.type}</span>
+                    </div>
+                    
+                    <div class="text-lg mb-6 leading-relaxed">
+                        ${task.question}
+                    </div>
+
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="toggleElement('${id}-hint')" class="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white px-4 py-1 text-xs font-bold rounded transition uppercase">
+                            Wskazówka
+                        </button>
+                        <button onclick="toggleElement('${id}-ans')" class="border border-green-500 text-green-500 hover:bg-green-500 hover:text-white px-4 py-1 text-xs font-bold rounded transition uppercase">
+                            Rozwiązanie
+                        </button>
+                    </div>
+
+                    <div id="${id}-hint" class="hidden mt-4 p-4 bg-blue-900/20 border-l-2 border-blue-500 text-blue-200 text-sm rounded-r">
+                        <div class="font-bold text-blue-400 mb-1 text-xs uppercase">Analiza systemowa:</div>
+                        ${task.hint}
+                    </div>
+
+                    <div id="${id}-ans" class="hidden mt-4 p-4 bg-green-900/20 border-l-2 border-green-500 text-green-200 text-sm rounded-r">
+                        <div class="font-bold text-green-400 mb-1 text-xs uppercase">Dane wyjściowe:</div>
+                        ${task.answer}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleElement(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('hidden');
+        }
+
+        function initTest() {
+            const container = document.getElementById('test-container');
+            container.innerHTML = '<div class="text-center orbitron text-yellow-500 animate-pulse">RE-GENERATING TASKS...</div>';
+            
+            setTimeout(() => {
+                let html = '';
+                const types = [...new Set(tasksData.map(t => t.type))];
+                let counter = 0;
+
+                types.forEach(type => {
+                    const filtered = tasksData.filter(t => t.type === type);
+                    const selected = filtered.sort(() => 0.5 - Math.random()).slice(0, 2);
+                    
+                    selected.forEach(taskTemplate => {
+                        const task = taskTemplate.generate();
+                        html += createCard(task, counter++);
+                    });
+                });
+
+                container.innerHTML = html;
+            }, 300);
+        }
+
+        window.onload = initTest;
+    </script>
+</body>
+</html>
